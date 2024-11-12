@@ -4,10 +4,13 @@ namespace App\Livewire;
 
 use App\Models\Item;
 use App\Models\Ruangan;
+use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Items extends Component
 {
+    use WithPagination;
     public $name;
     public $id;
     public $id_ruangan;
@@ -21,7 +24,14 @@ class Items extends Component
     public $search = '';
     public $kondisi_filter = '';
     public $ruangan_filter = '';
+    public $expirationFilter = '';
 
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'ruangan_filter' => ['except' => ''],
+        'kondisi_filter' => ['except' => ''],
+        'expirationFilter' => ['except' => '']
+    ];
 
     protected $rules = [
         'name' => 'required',
@@ -38,28 +48,53 @@ class Items extends Component
         'tahun_pengadaan.max' => 'Tahun tidak valid'
     ];
 
+    public function mount()
+    {
+        $this->expirationFilter = request()->get('filter', '');
+    }
+    public function clearFilters()
+    {
+        $this->reset(['search', 'ruangan_filter', 'kondisi_filter', 'expirationFilter']);
+    }
     public function render()
     {
+        $today = Carbon::now();
+        $threeMonthsFromNow = Carbon::now()->addMonths(3);
+
         $query = Item::query()
             ->when($this->search, function($query) {
-                $query->where(function($q) {
-                    $q->where('merk', 'like', '%'.$this->search.'%')
-                        ->orWhere('name', 'like', '%'.$this->search.'%');
+                $query->where(function ($q) {
+                    $q->where('merk', 'like', '%' . $this->search . '%')
+                        ->orWhere('name', 'like', '%' . $this->search . '%');
                 });
-            })
-            ->when($this->kondisi_filter, function($query) {
-                $query->where('kondisi', $this->kondisi_filter);
-            })
-            ->when($this->ruangan_filter, function($query) {
-                $query->where('id_ruangan', $this->ruangan_filter);
             });
+
+
+        switch ($this->expirationFilter) {
+            case 'expired':
+                $query->where('masa_berlaku', '<', $today)->orderBy('masa_berlaku', 'asc');
+                break;
+            case 'expiring_soon':
+                $query->whereBetween('masa_berlaku', [$today, $threeMonthsFromNow])->orderBy('masa_berlaku', 'asc');
+                break;
+            case 'valid':
+                $query->where(function ($q) use ($threeMonthsFromNow) {
+                    $q->where('masa_berlaku', '>', $threeMonthsFromNow)
+                        ->orWhereNull('masa_berlaku')->orderBy('masa_berlaku', 'asc');
+                });
+                break;
+        }
+
 
         $years = collect(range(date('Y'), date('Y')-30))->map(function($year) {
             return ['label' => $year, 'value' => $year];
         });
+        $items = $query->paginate(12);
+        $conditions = Item::distinct()->pluck('kondisi');
         return view('livewire.items',[
-            'items' => $query->latest()->paginate(10),
+            'items' => $items,
             'ruangans' => Ruangan::all(),
+            'conditions' => $conditions,
             'years' => $years
         ]);
     }

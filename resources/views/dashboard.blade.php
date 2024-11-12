@@ -4,7 +4,7 @@
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
-
+    @livewire("dashboard")
     <div class="py-12">
     </div>
 </x-app-layout>

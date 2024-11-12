@@ -1,4 +1,3 @@
-<div>
     <div class="py-4">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if (session()->has('message'))
@@ -11,7 +10,7 @@
                 <button wire:click="createForm()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-3">
                     Create Product
                 </button>
-
+            </div>
                 @if($isOpen)
                     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
                         <div class="bg-white rounded-lg p-8 max-w-md mx-auto">
@@ -39,6 +38,7 @@
                                 <div class="mb-4">
                                     <label for="kondisi" class="form-label">Kondisi</label>
                                     <select wire:model.live="kondisi" id="kondisi" class="form-select @error('kondisi') is-invalid @enderror">
+                                        <option value="">Pilih Kondisi</option>
                                         <option value="Baik">Baik</option>
                                         <option value="Rusak">Rusak</option>
                                     </select>
@@ -86,21 +86,50 @@
 
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg px-4 py-4">
                     <!-- Search and Filters -->
-                    <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input wire:model.live="search" type="text" placeholder="Search items..."
-                               class="border rounded px-3 py-2">
-                        <select wire:model.live="ruangan_filter" class="border rounded px-3 py-2">
-                            <option value="">Semua ruangan</option>
-                            @foreach($ruangans as $ruangan)
-                                <option value="{{ $ruangan->id }}">{{ $ruangan->nama}}</option>
-                            @endforeach
-                        </select>
+                    @if($expirationFilter)
+                        <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="font-medium">
+                                    Showing:
+                                    @switch($expirationFilter)
+                                        @case('expired')
+                                            Expired Items
+                                            @break
+                                        @case('expiring_soon')
+                                            Items Expiring Soon
+                                            @break
+                                        @case('valid')
+                                            Valid Items
+                                            @break
+                                    @endswitch
+                                </span>
+                            </div>
+                            <button wire:click="clearFilters"
+                                    class="text-blue-600 hover:text-blue-800 font-medium">
+                                Clear Filter
+                            </button>
+                        </div>
+                    @endif
+                    <div class="mb-8">
+                        <div class="flex gap-4">
+                            <input type="text"
+                                   wire:model.live.debounce.300ms="search"
+                                   placeholder="Search items..."
+                                   class="w-full p-2 border rounded">
 
-                        <select wire:model.live="kondisi_filter" class="border rounded px-3 py-2">
-                            <option value="">Semua kondisi</option>
-                            <option value="Baik">Baik</option>
-                            <option value="Rusak">Rusak</option>
-                        </select>
+                            <select wire:model.live="ruangan_filter" class="p-2 border rounded">
+                                <option value="">All Rooms</option>
+                                @foreach($ruangans as $ruangan)
+                                    <option value="{{ $ruangan->id }}">{{ $ruangan->nama }}</option>
+                                @endforeach
+                            </select>
+
+                            <select wire:model.live="kondisi_filter" class="p-2 border rounded">
+                                <option value="">All Conditions</option>
+                                <option value="Baik">Baik</option>
+                                <option value="Rusak">Rusak</option>
+                            </select>
+                        </div>
                     </div>
                 <table class="min-w-full">
                     <thead>
@@ -137,5 +166,4 @@
             </div>
         </div>
     </div>
-</div>
-</div>
+
