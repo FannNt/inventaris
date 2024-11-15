@@ -12,7 +12,8 @@ class Item extends Model
         'kondisi',
         'keterangan',
         'tahun_pengadaan',
-        'masa_berlaku'
+        'masa_berlaku',
+        "id_ruangan"
         ];
     public function ruangan()
     {

@@ -5,12 +5,14 @@ namespace App\Livewire;
 use App\Models\Item;
 use App\Models\Ruangan;
 use Carbon\Carbon;
+use Filament\Notifications\Notification;
+use Filament\Panel\Concerns\HasNotifications;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class Items extends Component
 {
-    use WithPagination;
+    use WithPagination, HasNotifications;
     public $name;
     public $id;
     public $id_ruangan;
@@ -56,6 +58,7 @@ class Items extends Component
     {
         $this->reset(['search', 'ruangan_filter', 'kondisi_filter', 'expirationFilter']);
     }
+
     public function render()
     {
         $today = Carbon::now();
@@ -64,10 +67,15 @@ class Items extends Component
         $query = Item::query()
             ->when($this->search, function($query) {
                 $query->where(function ($q) {
-                    $q->where('merk', 'like', '%' . $this->search . '%')
-                        ->orWhere('name', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%' . $this->search . '%');
                 });
-            });
+            })
+            ->when($this->ruangan_filter, function($query) {
+                $query->where('id_ruangan', 'like', $this->ruangan_filter );
+                })
+            ->when($this->kondisi_filter, function($query) {
+                $query->where('kondisi','like',$this->kondisi_filter);
+                    });
 
 
         switch ($this->expirationFilter) {
@@ -97,76 +105,5 @@ class Items extends Component
             'conditions' => $conditions,
             'years' => $years
         ]);
-    }
-
-    public function updateKondisi($value)
-    {
-        if ($value == 'Baik') {
-            $this->keterangan = null;
-        }
-    }
-    public function resetInput()
-    {
-        $this->name = null;
-        $this->merk = null;
-        $this->kondisi = null;
-        $this->keterangan = null;
-        $this->tahun_pengadaan = date('Y');
-        $this->masa_berlaku = null;
-        $this->id_ruangan = null;
-
-    }
-
-    public function openModal()
-    {
-        $this->isOpen = true;
-    }
-
-    public function closeModal()
-    {
-        $this->isOpen = false;
-    }
-
-    public function createForm()
-    {
-        $this->resetInput();
-        $this->openModal();
-    }
-    public function store(){
-        $this->validate();
-
-        Item::updateOrCreate(['id'=> $this->id],[
-            'name' => $this->name,
-            'id_ruangan' => $this->id_ruangan,
-            'merk' => $this -> merk,
-            'kondisi' => $this -> kondisi,
-            'keterangan' => $this ->keterangan,
-            'tahun_pengadaan' => $this ->tahun_pengadaan,
-            'masa_berlaku' => $this -> masa_berlaku
-        ]);
-
-        session()->flash('message', $this->id ? 'Item updated successfully.' : 'Item created successfully.');
-        $this->closeModal();
-        $this->resetInput();
-
-    }
-    public function edit($id){
-        $item = Item::findOrFail($id);
-        $this->id = $id;
-        $this->name = $item->name;
-        $this->id_ruangan = $item->id_ruangan;
-        $this->merk = $item->merk;
-        $this->kondisi = $item->kondisi;
-        $this->keterangan = $item->keterangan;
-        $this->tahun_pengadaan = $item->tahun_pengadaan;
-        $this->masa_berlaku = $item->masa_berlaku;
-
-        $this->openModal();
-    }
-
-    public function delete($id)
-    {
-        Item::find($id)->delete();
-        session()->flash('message', 'Item deleted successfully.');
     }
 }
