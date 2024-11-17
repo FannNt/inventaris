@@ -1,6 +1,31 @@
 <div class="min-h-screen bg-gray-100">
     <div class="py-4">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+                @if($expirationFilter)
+                    <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex justify-between items-center">
+                        <div class="flex items-center">
+                                <span class="font-medium">
+                                    Showing:
+                                    @switch($expirationFilter)
+                                        @case('expired')
+                                            Expired Items
+                                            @break
+                                        @case('expiring_soon')
+                                            Items Expiring Soon
+                                            @break
+                                        @case('valid')
+                                            Valid Items
+                                            @break
+                                    @endswitch
+                                </span>
+                        </div>
+                        <button wire:click="clearFilters"
+                                class="text-blue-600 hover:text-blue-800 font-medium">
+                            Clear Filter
+                        </button>
+                    </div>
+                @endif
             {{-- Filters --}}
             <div class="bg-white shadow-md rounded-lg p-6 mb-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

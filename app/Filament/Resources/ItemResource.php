@@ -60,9 +60,14 @@ class ItemResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('merk'),
-                Tables\Columns\TextColumn::make('kondisi'),
-                Tables\Columns\TextColumn::make('masa_berlaku'),
+                Tables\Columns\TextColumn::make('id_ruangan')->label('Ruangan'),
 
+                Tables\Columns\TextColumn::make('kondisi'),
+                Tables\Columns\TextColumn::make('masa_berlaku')
+                    ->date()
+                    ->color(fn (Item $record): string =>
+                    $record->isExpired() ? 'danger' : 'success'
+                    ),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('id_ruangan')

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
@@ -15,6 +16,18 @@ class Item extends Model
         'masa_berlaku',
         "id_ruangan"
         ];
+
+    protected $dates = [
+        'masa_berlaku'
+    ];
+    public function isExpired()
+    {
+        $warningDays = 90;
+        $today = now();
+        $masa_berlaku = Carbon::parse($this->masa_berlaku);
+        return $masa_berlaku->lte($today) ||
+            $today->diffInDays($masa_berlaku) <= $warningDays;
+    }
     public function ruangan()
     {
 
