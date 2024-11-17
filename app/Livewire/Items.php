@@ -5,14 +5,12 @@ namespace App\Livewire;
 use App\Models\Item;
 use App\Models\Ruangan;
 use Carbon\Carbon;
-use Filament\Notifications\Notification;
-use Filament\Panel\Concerns\HasNotifications;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class Items extends Component
 {
-    use WithPagination, HasNotifications;
+    use WithPagination;
     public $name;
     public $id;
     public $id_ruangan;

@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('merk');
             $table->enum('kondisi',['Baik','Rusak']);
             $table->text('keterangan')->nullable();
-            $table->year('tahun_pengadaan');
-            $table->date('masa_berlaku');
+            $table->year('tahun_pengadaan')->nullable();
+            $table->date('masa_berlaku')->nullable();
             $table->timestamps();
         });
     }
