@@ -33,6 +33,11 @@ class Items extends Component
         'expirationFilter' => ['except' => '']
     ];
 
+    public function updatingKondisiFilter()
+    {
+            
+    }
+
     protected $rules = [
         'name' => 'required',
         'merk' => 'required',
