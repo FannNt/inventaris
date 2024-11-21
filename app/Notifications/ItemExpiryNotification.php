@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Livewire\Items;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -16,7 +15,7 @@ class ItemExpiryNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(Items $item)
+    public function __construct($item)
     {
         $this->item = $item;
     }
@@ -40,10 +39,11 @@ class ItemExpiryNotification extends Notification
             ->error()
             ->subject('Item Expiry Warning')
             ->line('The following item has expired or is about to expire:')
-            ->line('Item Name: ' . $this->item->name)
-            ->line('Expiry Date: ' . $this->item->expiry_date)
-            ->line('Current Stock: ' . $this->item->stock)
-            ->action('View Item', url('/admin/items/' . $this->item->id))
+            ->line($this->item->get()->map(function($item) {
+                return "- {$item->name} (Expires: {$item->masa_berlaku})";
+            })->join("\n"))
+
+            ->action('View Item', url('/admin/items/'))
             ->line('Please take necessary action.');
     }
 
