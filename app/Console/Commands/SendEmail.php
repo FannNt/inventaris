@@ -43,6 +43,7 @@ class SendEmail extends Command
         try {
             foreach ($admins as $admin) {
                 $admin->notify(new ItemExpiryNotification($expItems));
+                $this->info('Email sent to ' . $admin->email);
             }
 
         }catch (\Exception $exception){
