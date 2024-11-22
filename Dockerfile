@@ -55,8 +55,8 @@ RUN chmod +x /usr/local/bin/rr
 # Copy supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose port 8000
-EXPOSE 8000
+# Expose port 8080
+EXPOSE ${PORT:-8080}
 
 # Start supervisor
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
