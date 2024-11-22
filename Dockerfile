@@ -55,7 +55,9 @@ EXPOSE ${PORT:-8000}
 # Start supervisor
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
-# Install Swoole
-RUN pecl install swoole \
+# Install Swoole dependencies and Swoole
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    && pecl install swoole \
     && docker-php-ext-enable swoole
 
