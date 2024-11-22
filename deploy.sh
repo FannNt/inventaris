@@ -23,7 +23,7 @@ php artisan event:cache
 php artisan route:cache
 php artisan view:cache
 
-# Run any database migrations
+php artisan octane:install --server=roadrunner
 
 # Check if the environment variable is set to "false" or not set at all
 if [[ "${!ENV_VAR_NAME}" = "false" ]] || [[ -z "${!ENV_VAR_NAME}" ]]; then

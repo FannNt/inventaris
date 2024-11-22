@@ -221,4 +221,22 @@ return [
 
     'max_execution_time' => 30,
 
+    'worker' => env('OCTANE_WORKERS', 2),
+
+    'max_requests' => env('OCTANE_MAX_REQUESTS', 1000),
+
+    'worker_memory' => 128,
+
+    'client_max_body_size' => '128M',
+
+    'hooks' => [
+        'worker-start' => [
+            function () {
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+            },
+        ],
+    ],
+
 ];

@@ -41,9 +41,16 @@ RUN composer dump-autoload --optimize
 # Install Node dependencies and build assets
 RUN npm ci && npm run build
 
-# Set permissions
+# Set proper permissions
 RUN chown -R www-data:www-data /app \
-    && chmod -R 755 /app/storage
+    && chmod -R 755 /app/storage \
+    && chmod -R 755 /app/bootstrap/cache
+
+# Create log directory for supervisor
+RUN mkdir -p /var/log/supervisor
+
+# Make sure RR binary is executable
+RUN chmod +x /usr/local/bin/rr
 
 # Copy supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf

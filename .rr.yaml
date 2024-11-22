@@ -1,16 +1,33 @@
 version: "3"
 
 server:
-  command: "php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=8000"
-  env:
-    - APP_ENV: production
-    - APP_DEBUG: false
+  command: "php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=8000 --max-requests=1000"
 
 http:
   address: 0.0.0.0:8000
   middleware: []
   pool:
-    num_workers: 4
-    max_jobs: 64
+    num_workers: 2
+    debug: true
+    supervisor:
+      exec_ttl: 60s
     allocate_timeout: 60s
     destroy_timeout: 60s
+
+logs:
+  mode: production
+  channels:
+    http:
+      level: error
+    server:
+      level: info
+    metrics:
+      level: error
+
+reload:
+  interval: 1s
+  patterns: [".php"]
+  services:
+    http:
+      dirs: ["."]
+      recursive: true
