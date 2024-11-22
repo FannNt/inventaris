@@ -20,9 +20,6 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install RoadRunner
-COPY --from=ghcr.io/roadrunner-server/roadrunner:2023.3.8 /usr/bin/rr /usr/local/bin/rr
-
 # Set working directory
 WORKDIR /app
 
@@ -49,9 +46,6 @@ RUN chown -R www-data:www-data /app \
 # Create log directory for supervisor
 RUN mkdir -p /var/log/supervisor
 
-# Make sure RR binary is executable
-RUN chmod +x /usr/local/bin/rr
-
 # Copy supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
@@ -60,4 +54,8 @@ EXPOSE ${PORT:-8000}
 
 # Start supervisor
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+# Install Swoole
+RUN pecl install swoole \
+    && docker-php-ext-enable swoole
 
