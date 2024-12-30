@@ -14,6 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\View\View;
+use Carbon\Carbon;
 
 class ItemResource extends Resource
 {
@@ -63,7 +64,7 @@ class ItemResource extends Resource
                             ->mapWithKeys(fn($year) => [$year => $year])
                             ->toArray()
                     )
-                    ->label('Year')
+                    ->label('Tahun Pengadaan')
                     ->required(),
 
                 Forms\Components\DatePicker::make('masa_berlaku')
@@ -84,9 +85,23 @@ class ItemResource extends Resource
                 Tables\Columns\TextColumn::make('kondisi'),
                 Tables\Columns\TextColumn::make('masa_berlaku')
                     ->date()
-                    ->color(fn (Item $record): string =>
-                    $record->isExpired() ? 'danger' : 'success'
-                    ),
+                    ->color(function (Item $record): string {
+                        if (!$record->masa_berlaku) {
+                            return 'gray';
+                        }
+
+                        $today = now();
+                        $threeMonthsFromNow = now()->addMonths(3);
+                        $expiryDate = Carbon::parse($record->masa_berlaku);
+
+                        if ($expiryDate->lt($today)) {
+                            return 'danger';
+                        } elseif ($expiryDate->lt($threeMonthsFromNow)) {
+                            return 'warning';
+                        } else {
+                            return 'success';
+                        }
+                    }),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('id_ruangan')

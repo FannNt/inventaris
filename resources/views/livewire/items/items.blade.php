@@ -65,8 +65,20 @@
         <!-- Items Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($items as $item)
-                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100">
-                    <div class="p-6">
+                @php
+                    $today = \Carbon\Carbon::now();
+                    $threeMonthsFromNow = \Carbon\Carbon::now()->addMonths(3);
+                    $expiryDate = $item->masa_berlaku ? \Carbon\Carbon::parse($item->masa_berlaku) : null;
+                    
+                    $cardClass = !$expiryDate ? 'border-gray-200' : 
+                        ($expiryDate->lt($today) ? 'border-red-200 bg-red-50' : 
+                        ($expiryDate->lt($threeMonthsFromNow) ? 'border-yellow-200 bg-yellow-50' : 
+                        'border-green-200 bg-green-50'));
+                @endphp
+                
+                <div class="border rounded-lg shadow-sm overflow-hidden transition-all duration-200 hover:shadow-lg {{ $cardClass }}">
+                    <div class="p-4">
+                        <!-- Card Header -->
                         <div class="flex justify-between items-start mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">{{ $item->name }}</h3>
                             <span class="px-3 py-1 rounded-full text-sm font-medium {{ $item->kondisi === 'Baik' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
@@ -86,12 +98,6 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                                 <span class="text-gray-600">Masa Berlaku:</span>
-                                @php
-                                    $today = \Carbon\Carbon::now();
-                                    $threeMonthsFromNow = \Carbon\Carbon::now()->addMonths(3);
-                                    $expiryDate = $item->masa_berlaku ? \Carbon\Carbon::parse($item->masa_berlaku) : null;
-                                @endphp
-                                
                                 @if(!$item->masa_berlaku)
                                     <span class="ml-2 text-gray-900">Masa berlaku Tidak tersedia</span>
                                 @else
@@ -106,10 +112,10 @@
                             </div>
                             <div class="flex items-center">
                                 <svg class="h-5 w-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7V4a2 2 0 012-2h2M4 17v3a2 2 0 002 2h2m8-20h2a2 2 0 012 2v3M16 21h2a2 2 0 002-2v-3M5 11h14M9 11V7m6 4v4"/>
                                 </svg>
                                 <span class="text-gray-600">No. Seri:</span>
-                                <span class="ml-2 text-gray-900">{{ $item->no_seri ?: 'No. Seri tidak tersedia' }}</span>
+                                <span class="ml-2 text-gray-900">{{ $item->no_seri ?: 'Not available' }}</span>
                             </div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-gray-100">
