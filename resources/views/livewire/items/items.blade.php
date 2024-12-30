@@ -86,7 +86,23 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                                 <span class="text-gray-600">Masa Berlaku:</span>
-                                <span class="ml-2 text-gray-900">{{ $item->masa_berlaku ?: ' Masa berlaku Tidak tersedia' }}</span>
+                                @php
+                                    $today = \Carbon\Carbon::now();
+                                    $threeMonthsFromNow = \Carbon\Carbon::now()->addMonths(3);
+                                    $expiryDate = $item->masa_berlaku ? \Carbon\Carbon::parse($item->masa_berlaku) : null;
+                                @endphp
+                                
+                                @if(!$item->masa_berlaku)
+                                    <span class="ml-2 text-gray-900">Masa berlaku Tidak tersedia</span>
+                                @else
+                                    <span class="ml-2 {{ 
+                                        !$expiryDate ? 'text-gray-900' : 
+                                        ($expiryDate->lt($today) ? 'text-red-600 font-medium' : 
+                                        ($expiryDate->lt($threeMonthsFromNow) ? 'text-yellow-600 font-medium' : 'text-green-600 font-medium')) 
+                                    }}">
+                                        {{ $item->masa_berlaku }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="flex items-center">
                                 <svg class="h-5 w-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,9 +112,19 @@
                                 <span class="ml-2 text-gray-900">{{ $item->no_seri ?: 'No. Seri tidak tersedia' }}</span>
                             </div>
                         </div>
-
+                        <div class="mt-4 pt-3 border-t border-gray-100">
+                        <div class="flex justify-end space-x-2">
+                            <a href="{{ route('items.show', $item) }}" 
+                            class="inline-flex items-center justify-center p-2 text-sm font-medium text-gray-700 hover:text-primary-500 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
+             </div>
             @endforeach
         </div>
 

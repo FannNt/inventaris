@@ -25,7 +25,7 @@
                         <div class="mb-3 last:mb-0 bg-white p-3 rounded shadow">
                             <h4 class="font-semibold">{{ $item->name }}</h4>
                             <p class="text-sm text-red-600">
-                                Expired: {{ $item->masa_berlaku }}
+                                Masa Berlaku: {{ $item->masa_berlaku }}
                             </p>
                         </div>
                     @endforeach
@@ -51,7 +51,7 @@
                         <div class="mb-3 last:mb-0 bg-white p-3 rounded shadow">
                             <h4 class="font-semibold">{{ $item->name }}</h4>
                             <p class="text-sm text-yellow-600">
-                                Expires: {{ $item->masa_berlaku }}
+                                Masa Berlaku: {{ $item->masa_berlaku }}
                             </p>
                         </div>
                     @endforeach
@@ -78,7 +78,7 @@
                             <h4 class="font-semibold">{{ $item->name }}</h4>
                             @if($item->masa_berlaku)
                                 <p class="text-sm text-gray-600">
-                                    Expires: {{ $item->masa_berlaku }}
+                                    Masa Berlaku: {{ $item->masa_berlaku }}
                                 </p>
                             @else
                                 <p class="text-sm text-gray-600">No expiration date</p>
