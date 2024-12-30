@@ -13,7 +13,7 @@ class CreateAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'make:admin {name} {email} {password}';
+    protected $signature = 'make:admin';
 
     /**
      * The console command description.
@@ -27,16 +27,28 @@ class CreateAdmin extends Command
      */
     public function handle()
     {
-        try{
-            $user = User::create([
-                'name'=> $this->argument('name'),
-                'email' => $this->argument('email'),
-                'password' => Hash::make($this->argument('password')),
-                'is_admin' => true
-            ]);
-            $this->info("Admin account created! with email: {$user->email}");
-        }catch (\Exception $exception){
-            $this->error($exception->getMessage());
+        validator([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ])->validate();
+        $input['name'] = $this->ask('Enter Username?');
+        $input['email'] = $this->ask('Enter Email?');
+        $input['password'] = $this->secret('Enter Password?');
+        $input['password_confirmation'] = $this->secret('Confirm Password?');
+        $input['is_admin'] = 1;
+        if ($input['password'] != $input['password_confirmation']) {
+            $this->error('Passwords do not match');
+        } else {
+            try {
+                Hash::make($input['password']);
+                $user = User::create($input);
+                $this->info('Admin added successfully!');
+
+            }catch (\Exception $exception){
+                $this->error('Got error: ' . $exception->getMessage());
+            }
         }
+
     }
 }
