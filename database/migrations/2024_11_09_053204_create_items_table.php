@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid',10)->unique();
             $table->string('name');
             $table->foreignId('id_ruangan')->references('id')->on('ruangans')->onDelete('cascade')->onUpdate('cascade');
             $table->string('merk');
+            $table->string('lab_configure')->nullable(); //nama lab configurasi
+            $table->string('no_seri')->nullable();
+            $table->string('type');
             $table->enum('kondisi',['Baik','Rusak']);
             $table->text('keterangan')->nullable();
             $table->year('tahun_pengadaan')->nullable();

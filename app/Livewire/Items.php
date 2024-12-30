@@ -25,6 +25,7 @@ class Items extends Component
     public $kondisi_filter = '';
     public $ruangan_filter = '';
     public $expirationFilter = '';
+    public $no_seri = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -35,7 +36,7 @@ class Items extends Component
 
     public function updatingKondisiFilter()
     {
-            
+
     }
 
     protected $rules = [
@@ -55,8 +56,14 @@ class Items extends Component
 
     public function mount()
     {
-        $this->expirationFilter = request()->get('filter', '');
+        $this->expirationFilter = request()->query('filter', '');
     }
+
+    public function updatedExpirationFilter($value)
+    {
+        $this->resetPage();
+    }
+
     public function clearFilters()
     {
         $this->reset(['search', 'ruangan_filter', 'kondisi_filter', 'expirationFilter']);
@@ -102,7 +109,7 @@ class Items extends Component
         });
         $items = $query->paginate(12);
         $conditions = Item::distinct()->pluck('kondisi');
-        return view('livewire.items',[
+        return view('livewire.items.items', [
             'items' => $items,
             'ruangans' => Ruangan::all(),
             'conditions' => $conditions,

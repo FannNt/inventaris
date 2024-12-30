@@ -24,7 +24,7 @@ class RoomResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama')
+                Forms\Components\TextInput::make('name')
                     ->label('Nama Ruangan')
                     ->required(),
             ]);
@@ -34,7 +34,7 @@ class RoomResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('nama')->label('Nama Ruangan'),
+                TextColumn::make('name')->label('Nama Ruangan'),
             ])
             ->filters([
                 //

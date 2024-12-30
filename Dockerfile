@@ -58,6 +58,14 @@ CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.con
 # Install Swoole dependencies and Swoole
 RUN apt-get update && apt-get install -y \
     libssl-dev \
+    libbrotli-dev \
+    libcurl4-openssl-dev \
     && pecl install swoole \
+        --enable-sockets \
+        --enable-openssl \
+        --enable-http2 \
+        --enable-mysqlnd \
+        --enable-swoole-json \
+        --enable-swoole-curl \
     && docker-php-ext-enable swoole
 

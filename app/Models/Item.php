@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Item extends Model
 {
     protected $fillable = [
+        'uuid',
+        'lab_configure',
+        'no_seri',
+        'type',
         'name',
         'merk',
         'kondisi',
