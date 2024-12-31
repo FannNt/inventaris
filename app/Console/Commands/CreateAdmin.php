@@ -4,8 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Validator;
 class CreateAdmin extends Command
 {
     /**
@@ -27,28 +26,27 @@ class CreateAdmin extends Command
      */
     public function handle()
     {
-        validator([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ])->validate();
         $input['name'] = $this->ask('Enter Username?');
         $input['email'] = $this->ask('Enter Email?');
         $input['password'] = $this->secret('Enter Password?');
         $input['password_confirmation'] = $this->secret('Confirm Password?');
-        $input['is_admin'] = 1;
-        if ($input['password'] != $input['password_confirmation']) {
-            $this->error('Passwords do not match');
-        } else {
-            try {
-                Hash::make($input['password']);
-                $user = User::create($input);
-                $this->info('Admin added successfully!');
-
-            }catch (\Exception $exception){
-                $this->error('Got error: ' . $exception->getMessage());
-            }
+        $validator = Validator::make($input, [
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|confirmed|min:8',
+        ]);
+        if ($validator->fails()){
+            $this->error("Validation error:". implode(", ",
+                    $validator->errors()->all()));
+            return;
         }
-
+        $input['is_admin'] = true;
+        unset($input['password_confirmation']);
+        try {
+            User::create($input);
+            $this->info('Admin account created successfully!');
+        }catch (\Exception $exception){
+            $this->error('Got error: ' . $exception->getMessage());
+        }
     }
 }

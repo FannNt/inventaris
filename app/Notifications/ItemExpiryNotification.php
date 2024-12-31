@@ -43,7 +43,7 @@ class ItemExpiryNotification extends Notification
                 return "- {$item->name} (Expires: {$item->masa_berlaku})";
             })->join("\n"))
 
-            ->action('View Item', url('https://inventaris-production.up.railway.app/admin/items/'))
+            ->action('View Item', env('APP_URL') . '/admin/items')
             ->line('Please take necessary action.');
     }
 
