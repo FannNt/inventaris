@@ -8,9 +8,11 @@ Route::view('/', 'dashboard')->name('dashboard');
 Route::view('items', 'items' )->name('items');
 Route::get('items/{item}', [ItemController::class, 'show'])->name('items.show');
 
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
+Route::middleware('auth')->group(function (){
+    Route::view('profile', 'profile')
+        ->name('profile');
+});
+
 
 
 require __DIR__.'/auth.php';
