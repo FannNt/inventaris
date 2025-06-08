@@ -71,49 +71,46 @@ class Items extends Component
 
     public function render()
     {
-        $today = Carbon::now();
-        $threeMonthsFromNow = Carbon::now()->addMonths(3);
-
         $query = Item::query()
             ->when($this->search, function($query) {
-                $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%');
-                });
+                $query->where('name', 'like', '%' . $this->search . '%');
             })
             ->when($this->ruangan_filter, function($query) {
                 $query->where('id_ruangan', 'like', $this->ruangan_filter );
-                })
+            })
             ->when($this->kondisi_filter, function($query) {
                 $query->where('kondisi','like',$this->kondisi_filter);
-                    });
-
+            });
 
         switch ($this->expirationFilter) {
             case 'expired':
-                $query->where('masa_berlaku', '<', $today)->orderBy('masa_berlaku', 'asc');
+                $query->whereNotNull('masa_berlaku')
+                      ->where('masa_berlaku', '<', now())
+                      ->orderBy('masa_berlaku', 'asc');
                 break;
             case 'expiring_soon':
-                $query->whereBetween('masa_berlaku', [$today, $threeMonthsFromNow])->orderBy('masa_berlaku', 'asc');
+                $query->whereNotNull('masa_berlaku')
+                      ->where('masa_berlaku', '>=', now())
+                      ->where('masa_berlaku', '<=', now()->addMonths(3))
+                      ->orderBy('masa_berlaku', 'asc');
                 break;
             case 'valid':
-                $query->where(function ($q) use ($threeMonthsFromNow) {
-                    $q->where('masa_berlaku', '>', $threeMonthsFromNow)
-                        ->orWhereNull('masa_berlaku')->orderBy('masa_berlaku', 'asc');
-                });
+                $query->where(function($q) {
+                    $q->whereNull('masa_berlaku')
+                      ->orWhere('masa_berlaku', '>', now()->addMonths(3));
+                })->orderBy('masa_berlaku', 'asc');
                 break;
         }
 
-
-        $years = collect(range(date('Y'), date('Y')-30))->map(function($year) {
-            return ['label' => $year, 'value' => $year];
-        });
         $items = $query->paginate(12);
-        $conditions = Item::distinct()->pluck('kondisi');
+        
         return view('livewire.items.items', [
             'items' => $items,
             'ruangans' => Ruangan::all(),
-            'conditions' => $conditions,
-            'years' => $years
+            'conditions' => Item::distinct()->pluck('kondisi'),
+            'years' => collect(range(date('Y'), date('Y')-30))->map(function($year) {
+                return ['label' => $year, 'value' => $year];
+            })
         ]);
     }
 }

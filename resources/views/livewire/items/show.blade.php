@@ -1,95 +1,179 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ "Item Name : ".$item->name }}
-            </h2>
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">{{ $item->name }}</h2>
+                <p class="text-sm text-gray-500 mt-1">Calibration Item Details</p>
+            </div>
             <a href="{{ route('items') }}"
-               class="inline-flex items-center px-4 py-2 bg-gray-100 border border-transparent rounded-md font-semibold text-xs text-gray-800 uppercase tracking-widest hover:bg-gray-200 transition ease-in-out duration-150">
+               class="inline-flex items-center px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors duration-200 shadow-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
                 Back to Items
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="max-w-6xl mx-auto px-4 py-6">
+        <!-- Status Banner -->
+        @php
+            $today = now();
+            $expiry = $item->masa_berlaku ? \Carbon\Carbon::parse($item->masa_berlaku) : null;
+            $statusColor = 'bg-gray-50 border-gray-200';
+            $statusText = 'No expiry date';
+            $statusIcon = '📄';
+
+            if ($expiry) {
+                if ($expiry->lt($today)) {
+                    $statusColor = 'bg-red-50 border-red-200';
+                    $statusText = 'Expired';
+                    $statusIcon = '🚨';
+                } elseif ($expiry->lt($today->copy()->addMonths(3))) {
+                    $statusColor = 'bg-yellow-50 border-yellow-200';
+                    $statusText = 'Expiring Soon';
+                    $statusIcon = '⚠️';
+                } else {
+                    $statusColor = 'bg-green-50 border-green-200';
+                    $statusText = 'Valid';
+                    $statusIcon = '✅';
+                }
+            }
+        @endphp
+
+        <div class="mb-6 p-4 rounded-xl border {{ $statusColor }}">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="text-xl">{{ $statusIcon }}</span>
                     <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Item Details</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Id</label>
-                                <p class="mt-1">{{ $item->uuid }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Name</label>
-                                <p class="mt-1">{{ $item->name }}</p>
-                            </div>
+                        <p class="font-semibold text-gray-900">{{ $statusText }}</p>
+                        <p class="text-sm text-gray-600">
+                            {{ $expiry ? 'Expires: ' . $expiry->format('d M Y') : 'No expiration date set' }}
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs uppercase tracking-wide text-gray-500 font-medium">Condition</p>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mt-1
+                        {{ $item->kondisi === 'Baik' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ $item->kondisi }}
+                    </span>
+                </div>
+            </div>
+        </div>
 
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Merk</label>
-                                <p class="mt-1">{{ $item->merk }}</p>
-                            </div>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Item Information - Clean List Style -->
+            <div class="lg:col-span-2 space-y-4">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        🔧
+                    </span>
+                    Item Information
+                </h3>
 
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Koindisi</label>
-                                <p class="mt-1">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                        {{ $item->kondisi === 'Baik' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                        {{ $item->kondisi }}
-                                    </span>
-                                </p>
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">No. Seri</label>
-                                <p class="mt-1">{{ $item->no_seri ?: 'Not available' }}</p>
-                            </div>
-                        </div>
+                <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+                    <!-- Item ID -->
+                    <div class="px-6 py-4 flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Item ID</span>
+                        <span class="text-sm font-mono text-gray-900 bg-gray-50 px-3 py-1 rounded">{{ $item->uuid }}</span>
                     </div>
 
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Lab. Configure</label>
-                                <p class="mt-1">{{ ($item->lab_configure ?: "Belum dikonfigurasi") }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Ruangan</label>
-                                <p class="mt-1">{{ $item->ruangan->name }}</p>
-                            </div>
+                    <!-- Name -->
+                    <div class="px-6 py-4 flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Name</span>
+                        <span class="text-sm text-gray-900 font-medium">{{ $item->name }}</span>
+                    </div>
 
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Tahun Pengadaan</label>
-                                <p class="mt-1">{{ $item->tahun_pengadaan }}</p>
-                            </div>
+                    <!-- Brand -->
+                    <div class="px-6 py-4 flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Brand</span>
+                        <span class="text-sm text-gray-900">{{ $item->merk }}</span>
+                    </div>
 
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Masa Berlaku</label>
-                                @php
-                                    $today = \Carbon\Carbon::now();
-                                    $threeMonthsFromNow = \Carbon\Carbon::now()->addMonths(3);
-                                    $expiryDate = $item->masa_berlaku ? \Carbon\Carbon::parse($item->masa_berlaku) : null;
-                                @endphp
+                    <!-- Serial Number -->
+                    <div class="px-6 py-4 flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Serial Number</span>
+                        <span class="text-sm font-mono text-gray-900 bg-gray-50 px-3 py-1 rounded">{{ $item->no_seri }}</span>
+                    </div>
 
-                                @if(!$item->masa_berlaku)
-                                    <span class="ml-2 text-gray-900">Masa berlaku Tidak tersedia</span>
-                                @else
-                                    <span class="ml-2 {{
-                                        !$expiryDate ? 'text-gray-900' :
-                                        ($expiryDate->lt($today) ? 'text-red-600 font-medium' :
-                                        ($expiryDate->lt($threeMonthsFromNow) ? 'text-yellow-600 font-medium' : 'text-green-600 font-medium'))
-                                    }}">
-                                        {{ $item->masa_berlaku }}
-                                    </span>
-                                @endif
+                    <!-- Year of Procurement -->
+                    <div class="px-6 py-4 flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Year of Procurement</span>
+                        <span class="text-sm text-gray-900">{{ $item->tahun_pengadaan }}</span>
+                    </div>
+
+                    <!-- Validity Period -->
+                    <div class="px-6 py-4 flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Validity Period</span>
+                        <span class="text-sm text-gray-900">{{ $item->masa_berlaku ?: 'Not specified' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location & Lab Card -->
+            <div class="space-y-6">
+                <!-- Location Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                📍
+                            </span>
+                            Location
+                        </h3>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span class="text-sm font-medium text-gray-700">Room</span>
+                                <span class="text-sm text-gray-900 font-medium">{{ $item->ruangan->name }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Laboratory Configuration Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <span class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                🧪
+                            </span>
+                            Lab Configuration
+                        </h3>
+
+                        <div class="space-y-3">
+                            @if($item->lab_configure)
+                                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p class="text-sm text-blue-900 font-medium">{{ $item->lab_configure }}</p>
+                                </div>
+                            @else
+                                <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                                    <p class="text-sm text-gray-500">Not configured yet</p>
+                                    <p class="text-xs text-gray-400 mt-1">Lab configuration pending</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="mt-8 flex justify-end space-x-3">
+            <button class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Edit Item
+            </button>
+            <button class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Generate Report
+            </button>
         </div>
     </div>
 </x-app-layout>

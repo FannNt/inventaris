@@ -21,16 +21,24 @@ class Dashboard extends Component
     public function updateStats()
     {
         $this->totalItems = Item::count();
-
-        $today = Carbon::now();
-        $threeMonthsFromNow = Carbon::now()->addMonths(3);
-
-        $this->expiredItems = Item::where('masa_berlaku', '<', $today)->orderBy('masa_berlaku', 'asc')->get();
-        $this->expiringSoonItems = Item::whereBetween('masa_berlaku', [$today, $threeMonthsFromNow])->orderBy('masa_berlaku', 'asc')->get();
-        $this->validItems = Item::where('masa_berlaku', '>', $threeMonthsFromNow)
-            ->orWhereNull('masa_berlaku')
+        
+        $this->expiredItems = Item::whereNotNull('masa_berlaku')
+            ->where('masa_berlaku', '<', now())
             ->orderBy('masa_berlaku', 'asc')
             ->get();
+        
+        $this->expiringSoonItems = Item::whereNotNull('masa_berlaku')
+            ->where('masa_berlaku', '>=', now())
+            ->where('masa_berlaku', '<=', now()->addMonths(3))
+            ->orderBy('masa_berlaku', 'asc')
+            ->get();
+        
+        $this->validItems = Item::where(function($query) {
+            $query->whereNull('masa_berlaku')
+                  ->orWhere('masa_berlaku', '>', now()->addMonths(3));
+        })
+        ->orderBy('masa_berlaku', 'asc')
+        ->get();
     }
 
     public function render()
